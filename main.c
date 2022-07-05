@@ -9,10 +9,11 @@ void *create_person(void *person_from_th_func)
 	while (1)
 	{
 		
-		while (eat_food2(self_person) != 2)
+		while (!eat_food2(self_person))
 			{
 				am_i_dead(self_person);
 			}
+		//am_i_dead(self_person);
 		printf("%u %d is eating\n", time_in_ml(), self_person->owner_id);
 		self_person->time_now = time_in_ml();
 		lets_eat(self_person);
@@ -77,11 +78,11 @@ void start_threads(t_person **master, int philo_count)
 		i = i + 2;
 	}
 	i = 0;
-	// while (i < philo_count)
-	// {
-	// 	pthread_join((master[i])->owner_thread_id, NULL);
-	// 	i++;
-	// }
+	while (i < philo_count)
+	{
+	 	pthread_join((master[i])->owner_thread_id, NULL);
+	 	i++;
+	}
 }
 
 

@@ -40,5 +40,6 @@ t_person *put_information(int i, char **av, t_person **master, int *victim_point
 int	ft_atoi(const char *nptr);
 t_person **create_persons_class(char **av, int *victim_pointer, pthread_mutex_t *is_there, pthread_mutex_t *table_mutex);
 void all_over(t_person **master, int philo_count);
+void put_that_fork_back(t_person *self_person);
 
 #endif

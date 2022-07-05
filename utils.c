@@ -23,7 +23,7 @@ void am_i_dead(t_person *self_person)
 	}
 }
 
-void eat_food(t_person *self_person)
+/*void eat_food(t_person *self_person)
 {
 	pthread_mutex_lock((self_person->table_mutex));
 	if (self_person->owner_fork == 1 && *(self_person->left_fork) == 1)
@@ -52,7 +52,7 @@ void eat_food(t_person *self_person)
 	else
 		pthread_mutex_unlock((self_person->table_mutex));
 		
-}
+}*/
 
 int eat_food2(t_person *self)
 {
@@ -77,8 +77,18 @@ int eat_food2(t_person *self)
 	}
 	pthread_mutex_unlock(self->master[self->fork_mate_i]->owner_fork_mutex);
 	return (rtn == 2);
-
 }
+
+void put_that_fork_back(t_person *self_person)
+{
+	pthread_mutex_lock(self_person->owner_fork_mutex);
+	pthread_mutex_lock(self_person->master[self_person->fork_mate_i]->owner_fork_mutex);
+	self_person->owner_fork = 1;
+	self_person->left_fork[0] = 1;
+	pthread_mutex_unlock(self_person->owner_fork_mutex);
+	pthread_mutex_unlock(self_person->master[self_person->fork_mate_i]->owner_fork_mutex);
+}
+
 
 
 void  lets_eat(t_person *self)
