@@ -15,8 +15,10 @@ void *create_person(void *person_from_th_func)
 			}
 		printf("%u %d is eating\n", time_in_ml(), self_person->owner_id);
 		self_person->time_now = time_in_ml();
+		lets_eat(self_person);
+		printf("%u %d is sleeping\n", time_in_ml(), self_person->owner_id);
 		wanna_sleep(self_person);
-		
+		printf("%u %d is thinking\n", time_in_ml(), self_person->owner_id);
 		
 	}
 	return (NULL);
@@ -106,22 +108,22 @@ int main(int argc, char *argv[])
 			all_persons = create_persons_class(argv, &there_is_victim, is_there_victim_m, table_mutex);
 			init_mutex(all_persons, ft_atoi(argv[1]));
 			start_threads(all_persons, ft_atoi(argv[1]));
-			while (1)
-			{
-				usleep(5000);
-				current_time = time_in_ml();
-				if (current_time - all_persons[i]->time_now >= all_persons[i]->ttd / 1000)
-				{
-					printf("%u %d is dead\n", current_time - all_persons[i]->time_now, i + 1);
-					//all_over(all_persons, ft_atoi(argv[1]));
-					pthread_mutex_destroy(is_there_victim_m);
-					//free(is_there_victim_m);
-					return (0);
-				}
-				i++;
-				if (i == ft_atoi(argv[1]))
-					i = 0;
-			}
+			// while (1)
+			// {
+			// 	usleep(5000);
+			// 	current_time = time_in_ml();
+			// 	if (current_time - all_persons[i]->time_now >= all_persons[i]->ttd / 1000)
+			// 	{
+			// 		printf("%u %d is dead\n", current_time - all_persons[i]->time_now, i + 1);
+			// 		//all_over(all_persons, ft_atoi(argv[1]));
+			// 		pthread_mutex_destroy(is_there_victim_m);
+			// 		//free(is_there_victim_m);
+			// 		return (0);
+			// 	}
+			// 	i++;
+			// 	if (i == ft_atoi(argv[1]))
+			// 		i = 0;
+			// }
 		}
 	}
 	return (0);

@@ -34,6 +34,7 @@ unsigned int	time_in_ml(void);
 void am_i_dead(t_person *self_person);
 void eat_food(t_person *self_person);
 void  wanna_sleep(t_person *self);
+void  lets_eat(t_person *self);
 int eat_food2(t_person *self);
 t_person *put_information(int i, char **av, t_person **master, int *victim_pointer);
 int	ft_atoi(const char *nptr);

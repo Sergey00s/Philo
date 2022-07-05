@@ -75,17 +75,40 @@ int eat_food2(t_person *self)
 		printf("%u %d has taken a fork\n", time_in_ml(), self->owner_id);
 		rtn++;
 	}
-	
+	pthread_mutex_unlock(self->master[self->fork_mate_i]->owner_fork_mutex);
 	return (rtn == 2);
 
 }
 
 
+void  lets_eat(t_person *self)
+{
+	unsigned int turn_count;
+	unsigned int i;
 
+	i = 0;
+	turn_count = self->tte / 100;
+	while (i < turn_count)
+	{
+		am_i_dead(self);
+		usleep(100);
+		i++;
+	}
+}
 
 void  wanna_sleep(t_person *self)
 {
-	
+	unsigned int turn_count;
+	unsigned int i;
+
+	i = 0;
+	turn_count = self->tts / 100;
+	while (i < turn_count)
+	{
+		am_i_dead(self);
+		usleep(100);
+		i++;
+	}
 }
 
 t_person *put_information(int i, char **av, t_person **master, int *victim_pointer)
