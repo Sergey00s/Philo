@@ -11,7 +11,7 @@
 typedef struct	s_person
 {
 	struct s_person	**master;
-	int 			fork_mate_id;
+	int 			fork_mate_i;
 	unsigned int	owner_id;
 	unsigned int	time_now;
 	unsigned int	time_end;
@@ -33,8 +33,8 @@ typedef struct	s_person
 unsigned int	time_in_ml(void);
 void am_i_dead(t_person *self_person);
 void eat_food(t_person *self_person);
-void  wanna_sleep(unsigned int time_type);
-void eat_food2(t_person *self);
+void  wanna_sleep(t_person *self);
+int eat_food2(t_person *self);
 t_person *put_information(int i, char **av, t_person **master, int *victim_pointer);
 int	ft_atoi(const char *nptr);
 t_person **create_persons_class(char **av, int *victim_pointer, pthread_mutex_t *is_there, pthread_mutex_t *table_mutex);

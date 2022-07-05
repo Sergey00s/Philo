@@ -13,42 +13,40 @@ unsigned int	time_in_ml(void)
 
 void am_i_dead(t_person *self_person)
 {
-	unsigned int res;
+	unsigned int current_time;
 
-	res = self_person->time_end - self_person->time_now;
-	res = self_person->ttd - res;
-	if (res <= 0)
+	current_time = time_in_ml();
+	if ((current_time - self_person->time_now) > (self_person->ttd / 1000))
 	{
-		pthread_mutex_lock((self_person->is_there_victim_p));
-		*(self_person->there_is_victim) = 1;
-		pthread_mutex_unlock((self_person->is_there_victim_p));
+		printf("%u %d is dead\n", current_time - self_person->time_now, self_person->owner_id);
+		exit(0);
 	}
 }
 
 void eat_food(t_person *self_person)
 {
-	//pthread_mutex_lock((self_person->table_mutex));
+	pthread_mutex_lock((self_person->table_mutex));
 	if (self_person->owner_fork == 1 && *(self_person->left_fork) == 1)
 	{
-		//pthread_mutex_unlock((self_person->table_mutex));
+		pthread_mutex_unlock((self_person->table_mutex));
 		pthread_mutex_lock(self_person->owner_fork_mutex);
 		printf("%u %d has taken a fork\n", time_in_ml(), self_person->owner_id);
-		pthread_mutex_lock((self_person->master[self_person->fork_mate_id - 1 % self_person->fcount]->owner_fork_mutex));
+		pthread_mutex_lock((self_person->master[self_person->fork_mate_i]->owner_fork_mutex));
 		printf("%u %d has taken a fork\n", time_in_ml(), self_person->owner_id);
 		self_person->time_now = time_in_ml();
 		self_person->owner_fork = 0;
 	 	*(self_person->left_fork) = 0;
 	 	pthread_mutex_unlock(self_person->owner_fork_mutex);
-	 	pthread_mutex_unlock((self_person->master[self_person->fork_mate_id - 1 % self_person->fcount]->owner_fork_mutex));
+	 	pthread_mutex_unlock((self_person->master[self_person->fork_mate_i]->owner_fork_mutex));
 	 	printf("%u %d is eating\n", time_in_ml(), self_person->owner_id);
 	 	usleep(self_person->tte);
 	 	pthread_mutex_lock(self_person->owner_fork_mutex);
-	 	pthread_mutex_lock((self_person->master[self_person->fork_mate_id - 1 % self_person->fcount]->owner_fork_mutex));
+	 	pthread_mutex_lock((self_person->master[self_person->fork_mate_i]->owner_fork_mutex));
 	 	self_person->owner_fork = 1;
 	 	*(self_person->left_fork) = 1;
 	 	pthread_mutex_unlock(self_person->owner_fork_mutex);
-	 	pthread_mutex_unlock((self_person->master[self_person->fork_mate_id - 1 % self_person->fcount]->owner_fork_mutex));
-		//wanna_sleep(self_person);
+	 	pthread_mutex_unlock((self_person->master[self_person->fork_mate_i]->owner_fork_mutex));
+		wanna_sleep(self_person->tts);
 		printf("%u %d is thinking\n", time_in_ml(), self_person->owner_id);
 	}
 	else
@@ -56,86 +54,38 @@ void eat_food(t_person *self_person)
 		
 }
 
-void eat_food2(t_person *self)
+int eat_food2(t_person *self)
 {
-	int permission;
-	int owner;
-	int neighbor;
+	int rtn;
 
-	permission = 0;
-	owner = 0;
-	neighbor = 0;
-	pthread_mutex_lock(self->table_mutex);
-	//pthread_mutex_lock(self->owner_fork_mutex);
+	rtn = 0;
+	am_i_dead(self);
+	pthread_mutex_lock(self->owner_fork_mutex);
 	if (self->owner_fork == 1)
 	{
 		self->owner_fork = 0;
-		pthread_mutex_unlock(self->table_mutex);
 		printf("%u %d has taken a fork\n", time_in_ml(), self->owner_id);
-		//pthread_mutex_unlock(self->owner_fork_mutex);
-		owner = 1;
-		permission += 1;
+		rtn++;
 	}
-	else
-		pthread_mutex_unlock(self->table_mutex);
-
-	pthread_mutex_lock(self->table_mutex);
-	//pthread_mutex_lock((self->master[self->fork_mate_id - 1 % self->fcount]->owner_fork_mutex));
-	if (*(self->left_fork) == 1)
+	pthread_mutex_unlock(self->owner_fork_mutex);
+	pthread_mutex_lock(self->master[self->fork_mate_i]->owner_fork_mutex);
+	if (self->left_fork[0] == 1)
 	{
-		*(self->left_fork) = 0;
-		pthread_mutex_unlock(self->table_mutex);
+		self->left_fork[0] = 0;
 		printf("%u %d has taken a fork\n", time_in_ml(), self->owner_id);
-		//pthread_mutex_unlock((self->master[self->fork_mate_id - 1 % self->fcount]->owner_fork_mutex));
-		neighbor = 1;
-		permission += 1;
+		rtn++;
 	}
-	else
-		pthread_mutex_unlock(self->table_mutex);
-
-	if (permission == 2)
-	{
-		printf("%u %d is eating\n", time_in_ml(), self->owner_id);
-		self->time_now = time_in_ml();
-		wanna_sleep(self->tte);
-		pthread_mutex_lock(self->table_mutex);
-		*(self->left_fork) = 1;
-		self->owner_fork = 1;
-		pthread_mutex_unlock(self->table_mutex);
-		wanna_sleep(self->tts);
-		permission = 0;
-	}
-	else
-	{
-		permission = 0;
-		pthread_mutex_lock(self->table_mutex);
-		*(self->left_fork) = 1;
-		self->owner_fork = 1;
-		pthread_mutex_unlock(self->table_mutex);
-	}
+	
+	return (rtn == 2);
 
 }
 
 
 
 
-void  wanna_sleep(unsigned int time_type)
+void  wanna_sleep(t_person *self)
 {
-	//printf("%u %d is sleeping\n", time_in_ml(), self_person->owner_id);
-
-	unsigned int turn;
-	unsigned int eks;
-	int			i;
-
-	i = 0;
-	turn = time_type / 30;
-	eks = time_type % 30;
-
-	while(i < 30 + eks)
-	{
-		usleep(turn);
-		i++;
-	}
+	
 }
 
 t_person *put_information(int i, char **av, t_person **master, int *victim_pointer)
@@ -167,19 +117,19 @@ void edit_neighbor_forks(t_person **master, int f_count)
 		if (i == 0)
 		{
 			(master[0])->left_fork = &((master[f_count - 1])->owner_fork);
-			(master[0])->fork_mate_id = f_count;
+			(master[0])->fork_mate_i = f_count - 1;
 			(master[0])->left_fork_mutex = ((master[f_count -1]->owner_fork_mutex));
 		}
 		else if (i == f_count - 1)
 		{
 			(master[i])->left_fork = &(master[0]->owner_fork);
-			(master[i])->fork_mate_id = 1;
+			(master[i])->fork_mate_i = 0;
 			(master[i])->left_fork_mutex = ((master[0]->owner_fork_mutex));
 		}
 		else
 		{
 			(master[i])->left_fork = &((master[i - 1])->owner_fork);
-			(master[i])->fork_mate_id = i;
+			(master[i])->fork_mate_i = i - 1;
 			(master[i])->left_fork_mutex = ((master[i - 1]->owner_fork_mutex));
 		}
 		i++;

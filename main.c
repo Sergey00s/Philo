@@ -1,14 +1,5 @@
 #include "philo.h"
 
-
-void ptc(char c) {
-	write(1, &c, 1);
-	write(1, "\n", 1);
-}
-
-
-
-
 void *create_person(void *person_from_th_func)
 {
 	t_person *self_person;
@@ -17,13 +8,15 @@ void *create_person(void *person_from_th_func)
 	self_person->time_now = time_in_ml();
 	while (1)
 	{
-		//am_i_dead(self_person);
-		//if (*(self_person->there_is_victim) == 1)
-		//{
-			//dead_body_is_found(self_person)
-		//	return (NULL);
-		//}
-		eat_food2(self_person);
+		
+		while (eat_food2(self_person) != 2)
+			{
+				am_i_dead(self_person);
+			}
+		printf("%u %d is eating\n", time_in_ml(), self_person->owner_id);
+		self_person->time_now = time_in_ml();
+		wanna_sleep(self_person);
+		
 		
 	}
 	return (NULL);
@@ -115,6 +108,7 @@ int main(int argc, char *argv[])
 			start_threads(all_persons, ft_atoi(argv[1]));
 			while (1)
 			{
+				usleep(5000);
 				current_time = time_in_ml();
 				if (current_time - all_persons[i]->time_now >= all_persons[i]->ttd / 1000)
 				{
