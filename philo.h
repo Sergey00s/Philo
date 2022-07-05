@@ -31,7 +31,7 @@ typedef struct	s_person
 }				t_person;
 
 unsigned int	time_in_ml(void);
-void am_i_dead(t_person *self_person);
+void am_i_dead(t_person *self_person, int id);
 void eat_food(t_person *self_person);
 void  wanna_sleep(t_person *self);
 void  lets_eat(t_person *self);

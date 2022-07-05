@@ -11,12 +11,13 @@ void *create_person(void *person_from_th_func)
 		
 		while (!eat_food2(self_person))
 			{
-				am_i_dead(self_person);
+				am_i_dead(self_person, 1);
 			}
 		//am_i_dead(self_person);
 		printf("%u %d is eating\n", time_in_ml(), self_person->owner_id);
 		self_person->time_now = time_in_ml();
 		lets_eat(self_person);
+		put_that_fork_back(self_person);
 		printf("%u %d is sleeping\n", time_in_ml(), self_person->owner_id);
 		wanna_sleep(self_person);
 		printf("%u %d is thinking\n", time_in_ml(), self_person->owner_id);
@@ -69,7 +70,7 @@ void start_threads(t_person **master, int philo_count)
 		pthread_create(&((master[i])->owner_thread_id), NULL, &create_person, (void *)master[i]);
 		i = i + 2;
 	}
-	usleep(500);
+	usleep(1000);
 	i = 1;
 	while (i < philo_count)
 	{
