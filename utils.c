@@ -11,14 +11,19 @@ unsigned int	time_in_ml(void)
 	return (ms);
 }
 
+unsigned int the_counter(unsigned int old)
+{
+	return (time_in_ml() - old);
+}
+
 void am_i_dead(t_person *self_person, int id)
 {
 	unsigned int current_time;
 
-	current_time = time_in_ml();
+	current_time = the_counter(self_person->old_time);
 	if ((current_time - self_person->time_now) > (self_person->ttd / 1000))
 	{
-		printf("%u %d is dead from %d\n", current_time - self_person->time_now, self_person->owner_id, id);
+		printf("%u %d is dead from %d at %u\n", current_time - self_person->time_now, self_person->owner_id, id, current_time);
 		exit(0);
 	}
 }
@@ -60,32 +65,32 @@ int eat_food2(t_person *self)
 
 	rtn = 0;
 	am_i_dead(self, 2);
-	pthread_mutex_lock(self->owner_fork_mutex);
-	if (self->owner_fork == 1)
-	{
-		self->owner_fork = 0;
-		printf("%u %d has taken a fork\n", time_in_ml(), self->owner_id);
-		rtn++;
-	}
-	pthread_mutex_unlock(self->owner_fork_mutex);
 	pthread_mutex_lock(self->master[self->fork_mate_i]->owner_fork_mutex);
 	if (self->left_fork[0] == 1)
 	{
 		self->left_fork[0] = 0;
-		printf("%u %d has taken a fork\n", time_in_ml(), self->owner_id);
+		printf("%u %d has taken a fork\n", the_counter(self->old_time), self->owner_id);
 		rtn++;
 	}
-	pthread_mutex_unlock(self->master[self->fork_mate_i]->owner_fork_mutex);
+	pthread_mutex_unlock(self->master[self->fork_mate_i]->owner_fork_mutex);	
+	pthread_mutex_lock(self->owner_fork_mutex);
+	if (self->owner_fork == 1)
+	{
+		self->owner_fork = 0;
+		printf("%u %d has taken a fork\n", the_counter(self->old_time), self->owner_id);
+		rtn++;
+	}
+	pthread_mutex_unlock(self->owner_fork_mutex);
 	return (rtn == 2);
 }
 
 void put_that_fork_back(t_person *self_person)
 {
 	pthread_mutex_lock(self_person->owner_fork_mutex);
-	self_person->owner_fork = 0;
+	self_person->owner_fork = 1;
 	pthread_mutex_unlock(self_person->owner_fork_mutex);
 	pthread_mutex_lock(self_person->master[self_person->fork_mate_i]->owner_fork_mutex);
-	self_person->left_fork[0] = 0;
+	self_person->left_fork[0] = 1;
 	pthread_mutex_unlock(self_person->master[self_person->fork_mate_i]->owner_fork_mutex);
 }
 
@@ -95,11 +100,12 @@ void  lets_eat(t_person *self)
 {
 	unsigned int turn_count;
 
-	turn_count = time_in_ml();
-	while (time_in_ml() - turn_count < self->tte)
+	turn_count = the_counter(self->old_time);
+	printf("iii%u\n", self->time_now);
+	while (the_counter(self->old_time) - turn_count < self->tte / 1000)
 	{
 		am_i_dead(self, 3);
-		usleep(100);
+		usleep(1000);
 	}
 }
 
@@ -107,11 +113,12 @@ void  wanna_sleep(t_person *self)
 {
 	unsigned int turn_count;
 
-	turn_count = time_in_ml();
-	while (time_in_ml() - turn_count < self->tts)
+	
+	turn_count = the_counter(self->old_time);
+	while (the_counter(self->old_time) - turn_count < self->tts / 1000)
 	{
 		am_i_dead(self, 4);
-		usleep(100);
+		usleep(1000);
 	}
 }
 

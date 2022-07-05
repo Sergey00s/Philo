@@ -13,6 +13,7 @@ typedef struct	s_person
 	struct s_person	**master;
 	int 			fork_mate_i;
 	unsigned int	owner_id;
+	unsigned int	old_time;
 	unsigned int	time_now;
 	unsigned int	time_end;
 	unsigned int	ttd;
@@ -30,6 +31,7 @@ typedef struct	s_person
 	pthread_t		owner_thread_id;
 }				t_person;
 
+unsigned int	the_counter(unsigned int old);
 unsigned int	time_in_ml(void);
 void am_i_dead(t_person *self_person, int id);
 void eat_food(t_person *self_person);

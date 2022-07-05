@@ -5,22 +5,23 @@ void *create_person(void *person_from_th_func)
 	t_person *self_person;
 
 	self_person = (t_person *)person_from_th_func;
-	self_person->time_now = time_in_ml();
+	self_person->time_now = the_counter(self_person->old_time);
 	while (1)
 	{
 		
 		while (!eat_food2(self_person))
 			{
+				put_that_fork_back(self_person);
 				am_i_dead(self_person, 1);
 			}
 		//am_i_dead(self_person);
-		printf("%u %d is eating\n", time_in_ml(), self_person->owner_id);
-		self_person->time_now = time_in_ml();
+		printf("%u %d is eating\n", the_counter(self_person->old_time), self_person->owner_id);
+		self_person->time_now = the_counter(self_person->old_time);
 		lets_eat(self_person);
 		put_that_fork_back(self_person);
-		printf("%u %d is sleeping\n", time_in_ml(), self_person->owner_id);
+		printf("%u %d is sleeping\n", the_counter(self_person->old_time), self_person->owner_id);
 		wanna_sleep(self_person);
-		printf("%u %d is thinking\n", time_in_ml(), self_person->owner_id);
+		printf("%u %d is thinking\n", the_counter(self_person->old_time), self_person->owner_id);
 		
 	}
 	return (NULL);
@@ -62,10 +63,13 @@ void init_mutex(t_person **master, int fc)
 void start_threads(t_person **master, int philo_count)
 {
 	int i;
-
+	unsigned int oldtime;
+	
+	oldtime = time_in_ml();
 	i = 0;
 	while (i < philo_count)
 	{
+		master[i]->old_time = oldtime;
 		master[i]->time_now = time_in_ml();
 		pthread_create(&((master[i])->owner_thread_id), NULL, &create_person, (void *)master[i]);
 		i = i + 2;
@@ -74,6 +78,7 @@ void start_threads(t_person **master, int philo_count)
 	i = 1;
 	while (i < philo_count)
 	{
+		master[i]->old_time = oldtime;
 		master[i]->time_now = time_in_ml();
 		pthread_create(&((master[i])->owner_thread_id), NULL, &create_person, (void *)master[i]);
 		i = i + 2;
@@ -95,8 +100,6 @@ int main(int argc, char *argv[])
 	int				there_is_victim;
 	pthread_mutex_t	*is_there_victim_m;
 	pthread_mutex_t *table_mutex;
-	unsigned int current_time;
-
 	is_there_victim_m = malloc(sizeof(pthread_mutex_t));
 	table_mutex = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(is_there_victim_m, NULL);
