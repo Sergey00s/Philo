@@ -101,7 +101,6 @@ void  lets_eat(t_person *self)
 	unsigned int turn_count;
 
 	turn_count = the_counter(self->old_time);
-	printf("iii%u\n", self->time_now);
 	while (the_counter(self->old_time) - turn_count < self->tte / 1000)
 	{
 		am_i_dead(self, 3);
